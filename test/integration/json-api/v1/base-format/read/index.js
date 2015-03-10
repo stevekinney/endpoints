@@ -394,7 +394,7 @@ describe('read', function() {
 
         describe('stringURLRelationship', function() {
           // TODO: implement
-          it('should not change related URL even when the resource changes');
+          it.skip('should not change related URL even when the resource changes');
         });
 
         describe('linkObjectRelationship', function() {
@@ -558,7 +558,7 @@ describe('read', function() {
     // });
 
     describe('topLevelLinks', function() {
-      it('should not include members other than self, resource, and pagination links if necessary');
+      it.skip('should not include members other than self, resource, and pagination links if necessary');
     });
   });
 
@@ -580,32 +580,32 @@ describe('read', function() {
     });
 
     describe('fetchingResources', function() {
-      it('must support fetching resource for URLs provided as a `self` link in the top-level links object');
-      it('must support fetching resource for URLs provided as a `self` link as part of a resource object');
-      it('must support fetching resource for URLs provided as a `resource` link as part of a link object');
+      it.skip('must support fetching resource for URLs provided as a `self` link in the top-level links object');
+      it.skip('must support fetching resource for URLs provided as a `self` link as part of a resource object');
+      it.skip('must support fetching resource for URLs provided as a `resource` link as part of a link object');
 
       describe('responses', function() {
         describe('200Ok', function() {
-          it('must respond to a successful request to fetch an individual resource or collection with a 200 OK response');
-          it('must respond to a successful request to fetch a resource collection with an array as the document\'s primary data');
-          it('must respond to a successful request to fetch an individual resource with a resource object or null as the document\'s primary data');
+          it.skip('must respond to a successful request to fetch an individual resource or collection with a 200 OK response');
+          it.skip('must respond to a successful request to fetch a resource collection with an array as the document\'s primary data');
+          it.skip('must respond to a successful request to fetch an individual resource with a resource object or null as the document\'s primary data');
         });
         describe('404NotFound', function() {
-          it('must return 404 Not Found when processing a request to fetch a resource that does not exist');
+          it.skip('must return 404 Not Found when processing a request to fetch a resource that does not exist');
         });
       });
     });
 
     describe('fetchingRelationships', function() {
-      it('must support fetching relationship data for every relationship URL provided as a self link as part of a link object');
+      it.skip('must support fetching relationship data for every relationship URL provided as a self link as part of a link object');
 
       describe('responses', function() {
         describe('200Ok', function() {
-          it('must respond to a successful request to fetch a relationship with a 200OK response');
-          it('must have a primary data consisting of null, an object of type and id members, an array');
+          it.skip('must respond to a successful request to fetch a relationship with a 200OK response');
+          it.skip('must have a primary data consisting of null, an object of type and id members, an array');
         });
         describe('400NotFound', function() {
-          it('must return 404 Not Found when processing a request to fetch a relationship URL that does not exist');
+          it.skip('must return 404 Not Found when processing a request to fetch a relationship URL that does not exist');
         });
       });
     });
