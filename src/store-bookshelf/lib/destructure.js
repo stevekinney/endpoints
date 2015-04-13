@@ -1,8 +1,15 @@
+// FIXME: this needs to be destructured to support other api formats, or
+// be moved wholesale into the request handler.
+
 const _ = require('lodash');
 const bPromise = require('bluebird');
 const Kapow = require('kapow');
 
-const sanitizeRequestData = require('./sanitize_request_data');
+function sanitize (data) {
+  delete data.type;
+  delete data.links;
+  return data;
+}
 
 module.exports = function (model, params) {
   if (!params) {
@@ -62,14 +69,14 @@ module.exports = function (model, params) {
       }
     }, params).then(function(params) {
       return {
-        data: sanitizeRequestData(params),
+        data: sanitize(params),
         toManyRels: toManyRels
       };
     });
   }
 
   return bPromise.resolve({
-    data: sanitizeRequestData(params),
+    data: sanitize(params),
     toManyRels: toManyRels
   });
 

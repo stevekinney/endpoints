@@ -13,6 +13,7 @@ class Controller {
 
     @constructs Controller
     @param {Object} opts - opts.adapter: An endpoints adapter
+    @param {Object} opts - opts.format: An endpoints format
     @param {Object} opts - opts.model: A model compatible with the adapter.
     @param {Object} opts - opts.validators: An array of validating methods.
     @param {Object} opts - opts.allowClientGeneratedIds: boolean indicating this
@@ -20,6 +21,9 @@ class Controller {
   constructor (opts={}) {
     if (!opts.adapter) {
       throw new Error('No adapter specified.');
+    }
+    if (!opts.format) {
+      throw new Error('No format specified.');
     }
     if (!opts.model) {
       throw new Error('No model specified.');

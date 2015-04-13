@@ -1,6 +1,6 @@
 const RequestHandler = require('../../request-handler');
 const ResponseFormatter = require('../../response-formatter');
-const jsonApi = require('../../formatter-jsonapi');
+const jsonapi = require('../../format-jsonapi');
 const send = require('./send');
 
 module.exports = function (config, adapter) {

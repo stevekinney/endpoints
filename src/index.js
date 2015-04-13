@@ -1,4 +1,9 @@
 exports.Application = require('./application');
 exports.Controller = require('./controller');
-exports.BookshelfAdapter = require('./adapter-bookshelf');
+exports.Store = {
+  bookshelf: require('./store-bookshelf')
+};
+exports.Format = {
+  jsonapi: require('./format-jsonapi')
+};
 exports.ValidateJsonSchema = require('./validate-json-schema');

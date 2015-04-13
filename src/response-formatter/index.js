@@ -42,7 +42,7 @@ ResponseFormatter.prototype.error = require('./lib/error');
 
   @todo: missing params listing
 */
-ResponseFormatter.prototype.create = ResponseFormatter.method(require('./lib/create'));
+ResponseFormatter.prototype.create = require('./lib/create');
 
 /**
   Convenience method for retrieving an element or a collection using
