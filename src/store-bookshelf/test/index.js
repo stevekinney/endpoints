@@ -15,7 +15,7 @@ const Bookshelf = bookshelf(knex({
   }
 }));
 
-const BookshelfStore = require('./');
+const BookshelfStore = require('../');
 
 const Author = Bookshelf.Model.extend({
   tableName: 'authors',
@@ -200,6 +200,19 @@ describe('JsonApiBookshelf', function () {
     it('should serialize the model to a JSON object excluding relations', function () {
       return Author.forge({id:1}).fetch({withRelated:['books']}).then(function (author) {
         expect(BookshelfStore.serialize(author)).to.deep.equal(fantasyDatabase.authors[0]);
+      });
+    });
+
+  });
+
+  describe('::read', function () {
+
+    it('should resolve with invalid relations removed', function () {
+      return BookshelfStore.read(Book, {
+        id: 1,
+        include: ['author', 'notarelation']
+      }).then(function (book) {
+        expect(book.relations).to.deep.equal(['author']);
       });
     });
 

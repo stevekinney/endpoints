@@ -10,7 +10,7 @@ const type = require('./type');
  * @param {Bookshelf.Model} model - a bookshelf model class
  * @param {Object} opts - the output of Request#query
  * @param {Object} mode - the mode of the request (single/related/relation)
- * @return {Promise(Bookshelf.Collection)} Models that match the request.
+ * @return {Promise.Bookshelf.Collection} Models that match the request.
 */
 module.exports = function read (model, opts, mode) {
   // TODO: make different read methods for the mode, don't glom them all here
@@ -33,6 +33,7 @@ module.exports = function read (model, opts, mode) {
 
   return ready.then(function () {
     var fields = opts.fields && opts.fields[type(model)];
+    var relations = _.intersection(allRelations(model), opts.include || []);
     // this has to be done here because we can't statically analyze
     // the columns on a table yet.
     if (fields) {
@@ -50,12 +51,12 @@ module.exports = function read (model, opts, mode) {
       // adding this in the queryBuilder changes the qb, but fetch still
       // returns all columns
       columns: fields,
-      withRelated: _.intersection(allRelations(model), opts.include || [])
+      withRelated: relations
     }).then(function (result) {
       // This is a lot of gross in order to pass this data into the
       // formatter later. Need to formalize this in some other way.
       result.mode = mode;
-      result.relations = opts.include;
+      result.relations = relations;
       result.singleResult = singleResult;
       result.baseType = opts.baseType;
       result.baseId = opts.baseId;

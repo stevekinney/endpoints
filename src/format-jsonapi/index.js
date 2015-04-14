@@ -1,38 +1,38 @@
 /**
  * Generate JSON API compatible response objects from any data.
  */
-class JsonApi {
+class JsonApiFormat {
 
   /**
    * The constructor.
    *
    * @constructs JsonApi
    * @param {Object} opts - configuration options
-   * @param {Object} opts.adapter - the adapter to extract data with
+   * @param {Object} opts.store - the store to extract data with
    * @param {Object} opts.baseUrl - the baseUrl for hypermedia links
    */
   constructor(opts={}) {
-    if (!opts.adapter) {
-      throw new Error('No adapter specified.');
+    if (!opts.store) {
+      throw new Error('No store specified.');
     }
-    this.adapter = opts.adapter;
+    this.store = opts.store;
     this.baseUrl = opts.baseUrl || '';
   }
 
   /**
    * Generate JSON API compatible response objects from any data source
-   * using the provided adapter.
+   * using the provided store.
    *
    * @param {*} input - the input data
    * @param {Array} includedRelations - an array of relation names to sideload
    * @param {Boolean} singleResult - indicate if data should be singular
    */
   process (input, includedRelations=[], singleResult=false) {
-    const adapter = this.adapter;
+    const store = this.store;
     let data = [];
     let rawIncludes = [];
     let includedIndex = [];
-    if (this.adapter.isMany(input)) {
+    if (this.store.isMany(input)) {
       input.forEach((input) => {
         const result = this.format(input, includedRelations);
         data.push(result.data);
@@ -45,7 +45,7 @@ class JsonApi {
     }
     // format the records to be included and ignore duplicates
     const included = rawIncludes.reduce((result, model) => {
-      const indexKey = `${adapter.id(model)}${adapter.type(model)}`;
+      const indexKey = `${store.id(model)}${store.type(model)}`;
       const skip = includedIndex.some((entry) => entry == indexKey);
       if (!skip) {
         // TODO: interlink these by logging which relation
@@ -73,11 +73,11 @@ class JsonApi {
    * @return {Object}
    */
   format(model, includedRelations=[]) {
-    const adapter = this.adapter;
+    const store = this.store;
     // get all relations on the model
-    const allRelations = adapter.allRelations(model);
+    const allRelations = store.allRelations(model);
     // get all toOne relations on the model
-    const toOneRelations = adapter.toOneRelations(model);
+    const toOneRelations = store.toOneRelations(model);
     // get all relations for this model that weren't sideloaded (included)
     const linkedRelations = allRelations.filter((relation) => {
       includedRelations.indexOf(relation) === -1;
@@ -86,14 +86,14 @@ class JsonApi {
     const {links, included} =
       this.link(model, includedRelations, linkedRelations);
     // start json-api compatible serialization
-    const data = adapter.serialize(model);
+    const data = store.serialize(model);
     // remove to-one foreign key attributes, they will appear in links
     for (let rel in toOneRelations) {
       delete data[toOneRelations[rel]];
     }
     // ensure required json-api fields are present
-    data.id = String(adapter.id(model));
-    data.type = adapter.type(model);
+    data.id = String(store.id(model));
+    data.type = store.type(model);
     data.links = links;
     // return the serialized model and all included models
     return { data, included };
@@ -106,8 +106,8 @@ class JsonApi {
    * @return {String}
    */
   selfUrl (model) {
-    const adapter = this.adapter;
-    return `${this.baseUrl}/${adapter.type(model)}/${adapter.id(model)}`;
+    const store = this.store;
+    return `${this.baseUrl}/${store.type(model)}/${store.id(model)}`;
   }
 
   /**
@@ -117,8 +117,8 @@ class JsonApi {
    * @return {String}
    */
   relatedUrl (model, relation) {
-    const adapter = this.adapter;
-    return `/${adapter.type(model)}/${adapter.id(model)}/${relation}`;
+    const store = this.store;
+    return `/${store.type(model)}/${store.id(model)}/${relation}`;
   }
 
   /**
@@ -128,8 +128,8 @@ class JsonApi {
    * @return {String}
    */
   relationUrl (model, relation) {
-    const adapter = this.adapter;
-    return `/${adapter.type(model)}/${adapter.id(model)}/links/${relation}`;
+    const store = this.store;
+    return `/${store.type(model)}/${store.id(model)}/links/${relation}`;
   }
 
   /**
@@ -141,30 +141,30 @@ class JsonApi {
    * @return {Object}
    */
   relate(model, relation, included) {
-    const adapter = this.adapter;
+    const store = this.store;
     const self = this.relationUrl(model, relation);
     const related = this.relatedUrl(model, relation);
     if (!included) {
       return { self, related };
     }
     let linkage = null;
-    if (adapter.isMany(included)) {
+    if (store.isMany(included)) {
       linkage = included.reduce(function (result, model) {
-        const id = adapter.id(model);
+        const id = store.id(model);
         if (id) {
           result.push({
             id: String(id),
-            type: adapter.type(model)
+            type: store.type(model)
           });
         }
         return result;
       }, []);
     } else {
-      const id = adapter.id(included);
+      const id = store.id(included);
       if (id) {
         linkage = {
-          id: adapter.id(included),
-          type: adapter.type(included)
+          id: store.id(included),
+          type: store.type(included)
         };
       }
     }
@@ -180,7 +180,7 @@ class JsonApi {
    * @return {Object}
    */
   link(model, includedRelations=[], linkedRelations=[]) {
-    const adapter = this.adapter;
+    const store = this.store;
     const links = {
       self: this.selfUrl(model)
     };
@@ -188,20 +188,20 @@ class JsonApi {
     // iterate relations that were sideloaded (included)
     includedRelations.forEach((relation) => {
       // get all sideloaded models for this relation
-      const includes = adapter.related(model, relation);
+      const includes = store.related(model, relation);
       // build up a links object with linkage to the sideloaded models
       links[relation] =
         this.relate(model, relation, includes);
       // keep track of sideloaded (included) models
-      if (adapter.isMany(includes)) {
+      if (store.isMany(includes)) {
         // if the included relation was a collection, push only the models
         // if the collection is empty, don't do anything.
         included = includes.length ?
-          included.concat(adapter.modelsFromCollection(includes)) :
+          included.concat(store.modelsFromCollection(includes)) :
           included;
       } else {
         // otherwise, push the singularly related model (as long as it exists)
-        if (adapter.id(includes)) {
+        if (store.id(includes)) {
           included.push(includes);
         }
       }
@@ -217,4 +217,4 @@ class JsonApi {
 
 }
 
-module.exports = JsonApi;
+module.exports = JsonApiFormat;

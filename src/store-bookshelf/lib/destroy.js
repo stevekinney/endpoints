@@ -7,7 +7,7 @@ const destructure = require('./destructure');
  * @param {Bookshelf.Model} model
  * @param {String} method - The method on the model instance to use when deleting.
  * @param {Object} params - An object containing the params from the request.
- * @return {Promise(Bookshelf.Model)} The deleted model.
+ * @return {Promise.Bookshelf.Model} The deleted model.
  */
 module.exports = function destroy (model, method, params) {
   if (!method) {

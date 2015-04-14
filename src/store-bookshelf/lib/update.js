@@ -7,7 +7,7 @@ const serialize = require('./serialize');
  * @param {Bookshelf.Model} model - A bookshelf model instance
  * @param {String} method - The method on the model instance to use when updating.
  * @param {Object} params - An object containing the params from the request.
- * @returns {Promise(Bookshelf.Model)} The updated model.
+ * @returns {Promise.Bookshelf.Model} The updated model.
  */
 module.exports = function update (model, method, params) {
   if (!method) {

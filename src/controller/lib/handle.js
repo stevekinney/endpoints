@@ -3,11 +3,11 @@ const ResponseFormatter = require('../../response-formatter');
 const jsonapi = require('../../format-jsonapi');
 const send = require('./send');
 
-module.exports = function (config, adapter) {
+module.exports = function (config, store, model) {
   var method = config.method;
   var responder = config.responder;
-  var handler = new RequestHandler(adapter, config);
-  var formatter = new ResponseFormatter(jsonApi);
+  var handler = new RequestHandler(store, config);
+  var formatter = new ResponseFormatter(jsonapi);
 
   return function (request, response) {
     var server = 'express'; // detect if hapi or express here

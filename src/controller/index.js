@@ -12,38 +12,34 @@ class Controller {
     The constructor.
 
     @constructs Controller
-    @param {Object} opts - opts.adapter: An endpoints adapter
-    @param {Object} opts - opts.format: An endpoints format
-    @param {Object} opts - opts.model: A model compatible with the adapter.
+    @param {Object} opts - opts.format: An endpoints format adapter.
+    @param {Object} opts - opts.store: An endpoints store adapter.
+    @param {Object} opts - opts.model: A model compatible with the store adapter.
     @param {Object} opts - opts.validators: An array of validating methods.
     @param {Object} opts - opts.allowClientGeneratedIds: boolean indicating this
   */
   constructor (opts={}) {
-    if (!opts.adapter) {
-      throw new Error('No adapter specified.');
-    }
     if (!opts.format) {
       throw new Error('No format specified.');
+    }
+    if (!opts.store) {
+      throw new Error('No store specified.');
     }
     if (!opts.model) {
       throw new Error('No model specified.');
     }
-    var config = this.config = _.extend({
+    this.config = _.extend({
       validators: [],
       allowClientGeneratedIds: false,
       allowToManyFullReplacement: true
     }, opts);
-
-    this._adapter = new config.adapter({
-      model: config.model
-    });
   }
 
   get capabilities() {
     // TODO: include this.config?
     return {
-      filters: this._adapter.filters(),
-      includes: this._adapter.relations()
+      filters: this.store.filters(this.model),
+      includes: this.store.allRelations(this.model),
     };
   }
 
@@ -63,11 +59,11 @@ class Controller {
         sort: [],
         schema: {},
       }, this.config, opts);
-      var validationFailures = validate(method, config, this._adapter);
+      var validationFailures = validate(method, config);
       if (validationFailures.length) {
         throw new Error(validationFailures.join('\n'));
       }
-      return handle(config, this._adapter);
+      return handle(config, this.store, this.model);
     };
   }
 
